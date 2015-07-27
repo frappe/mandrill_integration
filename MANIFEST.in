@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include mandrill_integration *.css
+recursive-include mandrill_integration *.csv
+recursive-include mandrill_integration *.html
+recursive-include mandrill_integration *.ico
+recursive-include mandrill_integration *.js
+recursive-include mandrill_integration *.json
+recursive-include mandrill_integration *.md
+recursive-include mandrill_integration *.png
+recursive-include mandrill_integration *.py
+recursive-include mandrill_integration *.svg
+recursive-include mandrill_integration *.txt
+recursive-exclude mandrill_integration *.pyc
