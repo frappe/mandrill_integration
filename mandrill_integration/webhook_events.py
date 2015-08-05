@@ -151,3 +151,9 @@ def get_webhook_keys():
 			}) if d.mandrill_webhook_key]
 
 	return frappe.cache().get_value("mandrill_webhook_keys", _get_webhook_keys)
+
+def set_meta_in_email_body(email):
+	"""Set X-MC-Metadata header in email. Called via hook make_email_body_message"""
+	message_id = email.msg_root.get("Message-Id")
+	if message_id:
+		email.msg_root[b'X-MC-Metadata'] = json.dumps({ "message_id": message_id })

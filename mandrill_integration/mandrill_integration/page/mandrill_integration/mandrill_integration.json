@@ -1,0 +1,21 @@
+{
+ "content": null, 
+ "creation": "2015-08-05 08:25:24.732923", 
+ "docstatus": 0, 
+ "doctype": "Page", 
+ "modified": "2015-08-05 08:25:24.732923", 
+ "modified_by": "Administrator", 
+ "module": "Mandrill Integration", 
+ "name": "mandrill-integration", 
+ "owner": "Administrator", 
+ "page_name": "mandrill-integration", 
+ "roles": [
+  {
+   "role": "System Manager"
+  }
+ ], 
+ "script": null, 
+ "standard": "Yes", 
+ "style": null, 
+ "title": "Mandrill Integration"
+}

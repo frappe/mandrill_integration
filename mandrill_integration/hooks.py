@@ -44,7 +44,7 @@ fixtures = ["Custom Field"]
 # ------------
 
 # before_install = "mandrill_integration.install.before_install"
-# after_install = "mandrill_integration.install.after_install"
+after_install = "mandrill_integration.install.after_install"
 
 # Desk Notifications
 # ------------------
@@ -82,26 +82,32 @@ doc_events = {
 	}
 }
 
+doctype_js = {
+	"Email Account": "mandrill_integration/email_account.js"
+}
+
+make_email_body_message = "mandrill_integration.webhook_events.set_meta_in_email_body"
+
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"mandrill_integration.tasks.all"
-# 	],
-# 	"daily": [
-# 		"mandrill_integration.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"mandrill_integration.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"mandrill_integration.tasks.weekly"
-# 	]
-# 	"monthly": [
-# 		"mandrill_integration.tasks.monthly"
-# 	]
-# }
+scheduler_events = {
+	# "all": [
+	# 	"mandrill_integration.tasks.all"
+	# ],
+	"daily": [
+		"mandrill_integration.blacklist.unsubscribe_blacklisted"
+	],
+	# "hourly": [
+	# 	"mandrill_integration.tasks.hourly"
+	# ],
+	# "weekly": [
+	# 	"mandrill_integration.tasks.weekly"
+	# ]
+	# "monthly": [
+	# 	"mandrill_integration.tasks.monthly"
+	# ]
+}
 
 # Testing
 # -------

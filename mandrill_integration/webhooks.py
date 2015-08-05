@@ -32,6 +32,7 @@ def webhook_exists(doc, session):
 	})
 	if r.status_code != 200:
 		# something went wrong
+		frappe.msgprint(_("Could not connect to Mandrill Integration"))
 		frappe.errprint(r.text)
 		return
 
@@ -60,6 +61,7 @@ def add_webhook(doc, session):
 
 	if r.status_code != 200:
 		# something went wrong
+		frappe.msgprint(_("Could not activate Mandrill Integration"))
 		frappe.errprint(r.text)
 		return
 
@@ -74,3 +76,4 @@ def get_api_url(api_endpoint):
 def get_webhook_post_url():
 	"""Get Post URL to be called by Mandrill Webhook"""
 	return os.path.join(get_url(), "api", "method", "mandrill_integration.webhook_events.notify")
+
