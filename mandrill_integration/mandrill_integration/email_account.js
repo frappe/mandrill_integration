@@ -9,6 +9,7 @@ $.extend(email_defaults, {
 
 frappe.ui.form.on("Email Account", {
 	refresh: function(frm) {
+		frm.dashboard.reset();
 		if (frm.doc.mandrill_webhook_key) {
 			frm.dashboard.set_headline_alert(__("Mandrill integration is active"), "alert-default");
 		}
