@@ -11,6 +11,7 @@ app_email = "team@frappe.io"
 app_version = "0.0.1"
 
 fixtures = ["Custom Field"]
+clear_cache = "mandrill_integration.webhook_events.clear_cache"
 
 # Includes in <head>
 # ------------------

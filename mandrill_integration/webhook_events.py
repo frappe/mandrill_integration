@@ -7,6 +7,7 @@ import hmac
 import hashlib
 import json
 from .webhooks import get_webhook_post_url
+from .blacklist import global_unsubscribe_and_commit
 
 @frappe.whitelist(allow_guest=True)
 def notify(mandrill_events=None):
@@ -39,9 +40,11 @@ def notify(mandrill_events=None):
 			}
 		]
 	"""
-	if not authenticate_signature():
-		# print "not authenticated"
+	if not mandrill_events:
 		return
+
+	if not authenticate_signature():
+		raise frappe.AuthenticationError
 
 	# print frappe.as_json(json.loads(mandrill_events), indent=2)
 
@@ -60,7 +63,10 @@ def set_status(event):
 
 		# delivery status should be set as per the original recipient of the communication
 		if recipient in communication.recipients:
-			set_delivery_status(communication, msg, event)
+			set_delivery_status_and_commit(communication, msg, event)
+
+			if event.get("event") in ("spam", "bounced", "unsub"):
+				global_unsubscribe_and_commit(msg.get("email"))
 
 def get_communication(msg):
 	"""Extracts message id from metadata and return communication doc"""
@@ -82,7 +88,7 @@ event_state_map = {
 	"opens": "Opened"
 }
 
-def set_delivery_status(communication, msg, event):
+def set_delivery_status_and_commit(communication, msg, event):
 	"""Evaluate event type, message state, clicks and opens and set the delivery status of the communication"""
 
 	event_type = event.get("event")
@@ -107,8 +113,9 @@ def set_delivery_status(communication, msg, event):
 	if delivery_status:
 		# print "Delivery Status of {0} is {1}".format(communication.name, delivery_status)
 		communication.db_set("delivery_status", delivery_status)
+		frappe.db.commit()
 
-def authenticate_signature():
+def authenticate_signature(post_url=None):
 	"""Returns True if the received signature matches the generated signature"""
 	received_signature = frappe.get_request_header("X-Mandrill-Signature")
 
@@ -116,7 +123,7 @@ def authenticate_signature():
 	if not received_signature:
 		return False
 
-	to_hash = get_post_url_for_hashing()
+	to_hash = get_post_url_for_hashing(post_url)
 	for key in get_webhook_keys():
 		# generate signature using the webhook key
 		hashed = hmac.new(key.encode("utf-8"), to_hash, hashlib.sha1)
@@ -129,28 +136,38 @@ def authenticate_signature():
 	# no match => failure
 	return False
 
-def get_post_url_for_hashing():
+def get_post_url_for_hashing(post_url=None, post_args=None):
 	"""Concats site's post url for set_status, and sorted key and value of request parameters"""
-	post_url = get_webhook_post_url()
-	post_args = ""
+	if not post_url: post_url = get_webhook_post_url()
+	if not post_args: post_args = frappe.local.form_dict
 
-	for key in sorted(frappe.local.form_dict.keys()):
+	post_args_string = ""
+
+	for key in sorted(post_args.keys()):
 		if key != "cmd":
-			post_args += key + frappe.local.form_dict[key]
+			post_args_string += key + post_args[key]
 
-	return post_url + post_args
+	return post_url + post_args_string
 
 def get_webhook_keys():
 	"""There could be multiple email accouts with Mandrill Integration"""
 	def _get_webhook_keys():
-		return [d.mandrill_webhook_key for d in frappe.get_all("Email Account",
+		webhook_keys = [d.mandrill_webhook_key for d in frappe.get_all("Email Account",
 			fields=["mandrill_webhook_key"],
 			filters={
 				"enable_outgoing": 1,
 				"service": "Mandrill"
 			}) if d.mandrill_webhook_key]
 
+		if frappe.conf.mandrill_webhook_key:
+			webhook_keys.append(frappe.conf.mandrill_webhook_key)
+
+		return webhook_keys
+
 	return frappe.cache().get_value("mandrill_webhook_keys", _get_webhook_keys)
+
+def clear_cache():
+	frappe.cache().delete_value("mandrill_webhook_keys")
 
 def set_meta_in_email_body(email):
 	"""Set X-MC-Metadata header in email. Called via hook make_email_body_message"""
