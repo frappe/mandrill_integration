@@ -9,7 +9,7 @@ import json
 from .webhooks import get_webhook_post_url
 from .blacklist import global_unsubscribe_and_commit
 
-@frappe.whitelist(allow_guest=True)
+@frappe.whitelist(allow_guest=True, xss_safe=True)
 def notify(mandrill_events=None):
 	"""Mandrill Webhook will call this public method. the authenticate_signature method will verify the signature.
 
