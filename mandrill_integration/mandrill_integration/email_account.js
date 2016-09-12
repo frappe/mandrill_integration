@@ -1,4 +1,4 @@
-$.extend(email_defaults, {
+$.extend(frappe.email_defaults, {
 	"Mandrill": {
 		"enable_outgoing": 1,
 		"smtp_server": "smtp.mandrillapp.com",
