@@ -58,13 +58,13 @@ def remove_from_blacklist(email_account, session, blacklist):
 
 		if not r.json()["deleted"]:
 			# didn't get deleted! check logs
-			print r.json()
+			print(r.json())
 
 def handle_blacklist_error(r):
 	try:
-		print r.json()["message"]
+		print(r.json()["message"])
 	except:
-		print r.text
+		print(r.text)
 
 def global_unsubscribe_and_commit(email):
 	"""Set Global Unsubscribe for the email and commit"""
